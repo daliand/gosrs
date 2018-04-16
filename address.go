@@ -1,7 +1,6 @@
 package gosrs
 
 import (
-	"errors"
 	"net/mail"
 	"regexp"
 	"strings"
@@ -12,7 +11,7 @@ func validateAddress(address string) (string, string, bool, error) {
 	// Check for valid RFC address
 	a, err := mail.ParseAddress(address)
 	if err != nil {
-		return "", "", false, errors.New("gosrs: Invalid email address")
+		return "", "", false, ErrInvalidAddress
 	}
 	ret := strings.Split(a.Address, "@")
 
@@ -51,6 +50,6 @@ func detectSeparator(address string) (string, error) {
 	if separator == "=" || separator == "-" || separator == "+" {
 		return separator, nil
 	}
-	return "", errors.New("gosrs: Invalid SRS separator")
+	return "", ErrInvalidSeparator
 
 }

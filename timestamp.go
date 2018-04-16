@@ -1,7 +1,6 @@
 package gosrs
 
 import (
-	"errors"
 	"strings"
 	"time"
 )
@@ -36,7 +35,7 @@ func checkTS(ts string, validity int64) error {
 	for _, char := range ts {
 		dex := int64(strings.Index(string(tsBaseChars), strings.ToUpper(string(char))))
 		if dex == -1 {
-			return errors.New("gosrs: Invalid timestamp character")
+			return ErrInvalidTimestampCharacter
 		}
 		then = (then << tsBasebits) | dex
 	}
@@ -51,5 +50,5 @@ func checkTS(ts string, validity int64) error {
 		return nil
 	}
 
-	return errors.New("gosrs: Timestamp expired")
+	return ErrTimestampExpired
 }

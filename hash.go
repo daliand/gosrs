@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
-	"errors"
 	"strings"
 )
 
@@ -24,5 +23,5 @@ func checkHash(h string, s string, key string, len int) error {
 	if strings.ToUpper(h) == strings.ToUpper(generateHash(s, key, len)) {
 		return nil
 	}
-	return errors.New("gosrs: Invalid hash")
+	return ErrInvalidHash
 }

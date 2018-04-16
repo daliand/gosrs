@@ -1,7 +1,6 @@
 package gosrs
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -31,7 +30,7 @@ func (GS *GS) SetSeparator(separator string) error {
 		GS.separator = separator
 		return nil
 	}
-	return errors.New("goGS: Invalid separator. Must be one of '=', '+', '-'. Default '='")
+	return ErrInvalidSeparator
 }
 
 // SetValidity sets the number of days GS timstamp is valid for
@@ -68,7 +67,14 @@ func (GS *GS) Forward(from string, alias string) (string, error) {
 
 			// hash 1st hop host + 1st hop local part
 			hash := generateHash(fmt.Sprintf("%s%s", firsthopDomain, opaque), GS.key, GS.hashLen)
-			return fmt.Sprintf("SRS1%s%s%s%s%s%s@%s", GS.separator, hash, GS.separator, firsthopDomain, GS.separator, opaque, alias), nil
+			return fmt.Sprintf("SRS1%s%s%s%s%s%s@%s",
+				GS.separator,
+				hash,
+				GS.separator,
+				firsthopDomain,
+				GS.separator,
+				opaque,
+				alias), nil
 		}
 
 		// We are second hop. Generate SRS1 address that bounces to first hop
@@ -77,13 +83,29 @@ func (GS *GS) Forward(from string, alias string) (string, error) {
 
 			// hash envelope domain and SRS opaque part
 			hash := generateHash(fmt.Sprintf("%s%s", fromDomain, opaque), GS.key, GS.hashLen)
-			return fmt.Sprintf("SRS1%s%s%s%s%s%s@%s", GS.separator, hash, GS.separator, fromDomain, GS.separator, opaque, alias), nil
+			return fmt.Sprintf("SRS1%s%s%s%s%s%s@%s",
+				GS.separator,
+				hash,
+				GS.separator,
+				fromDomain,
+				GS.separator,
+				opaque,
+				alias), nil
 		}
 	}
 	// We are the first hop. Generate SRS0 address that bounces to original envelope sender
 	ts := generateTS()
 	hash := generateHash(fmt.Sprintf("%s%s%s", ts, fromDomain, fromLocal), GS.key, GS.hashLen)
-	return fmt.Sprintf("SRS0%s%s%s%s%s%s%s%s@%s", GS.separator, hash, GS.separator, ts, GS.separator, fromDomain, GS.separator, fromLocal, alias), nil
+	return fmt.Sprintf("SRS0%s%s%s%s%s%s%s%s@%s",
+		GS.separator,
+		hash,
+		GS.separator,
+		ts,
+		GS.separator,
+		fromDomain,
+		GS.separator,
+		fromLocal,
+		alias), nil
 }
 
 // Reverse reverses a rewritten address.
@@ -126,5 +148,5 @@ func (GS *GS) Reverse(addr string) (string, error) {
 			return fmt.Sprintf("SRS0%s@%s", opaque, firsthopDomain), nil
 		}
 	}
-	return "", errors.New("gosrs: Not an SRS address")
+	return "", ErrInvalidSRSAddress
 }
