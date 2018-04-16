@@ -21,7 +21,7 @@ Basic usage
 import "github.com/daliand/gosrs"
 
 // Setup Package
-srs, err := gosrs.New("MyVerySecretKey")
+srs, err := gosrs.GuardedScheme("MyVerySecretKey")
 if err != nil {
     os.Panic(err.Error())
 }
